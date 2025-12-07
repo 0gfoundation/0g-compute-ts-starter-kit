@@ -6,6 +6,7 @@ A comprehensive REST API implementation for interacting with the 0G Compute Netw
 
 - **REST API Server** with Express.js and TypeScript
 - **Swagger Documentation** at `/docs` for interactive API testing
+- **🤖 Web Chat Interface** at `/chat` for easy AI conversations
 - **Official 0G AI Services** with verified provider addresses
 - **Automatic Ledger Management** with startup initialization
 - **TEE Verification** for enhanced trust and security
@@ -41,6 +42,8 @@ The starter kit includes pre-configured access to official 0G AI services:
 │   │   └── brokerService.ts     # Core 0G broker integration
 │   ├── index.ts                 # Express app entry point
 │   └── startup.ts               # Application initialization
+├── public/
+│   └── index.html               # Web chat interface
 ├── demo-compute-flow.ts         # Comprehensive demo script
 ├── DEMO_SCRIPT.md              # Demo script documentation
 ├── package.json                # Project configuration
@@ -95,6 +98,33 @@ npm start
 6. **Access the API:**
 - **REST API**: http://localhost:4000
 - **Swagger UI**: http://localhost:4000/docs
+- **Web Chat Interface**: http://localhost:4000/chat
+
+## 🤖 Web Chat Interface
+
+The starter kit includes a **Web Chat Interface** that provides an easy way to interact with 0G AI services:
+
+### Features
+- **Provider Selection**: Choose from available AI service providers
+- **Real-time Chat**: Natural language conversation with AI models
+- **Automatic Connection**: One-click provider acknowledgment
+- **Status Monitoring**: Real-time connection and response status
+- **Error Handling**: Friendly error messages and troubleshooting
+
+### Usage
+1. **Select Provider**: Choose an AI service provider from the list
+2. **Connect**: Click "Select This Provider" to establish connection
+![Provider Selection](img/provider.png)
+3. **Start Chat**: Begin your conversation with the AI
+![Chat With 0G](img/chat.png)
+4. **Monitor Status**: Watch the status bar for connection and response updates
+
+### Supported Models
+- **Llama 3.3 70B**: General-purpose AI model
+- **DeepSeek R1 70B**: Advanced reasoning model
+- **Llama 3.1 8B**: Lightweight instruction model
+
+The chat interface automatically handles provider acknowledgment, payment processing, and response verification.
 
 ## 🧪 Run the Complete Flow
 
@@ -463,6 +493,7 @@ This starter kit is perfect for:
 
 - **Web Applications** requiring AI integration
 - **API Services** with decentralized AI backends
+- **Chat Interfaces** for user-friendly AI interactions
 - **Prototyping** AI applications with micropayments
 - **Learning** 0G Compute Network integration
 - **Testing** different AI models and providers

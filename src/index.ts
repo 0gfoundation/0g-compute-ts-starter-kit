@@ -4,6 +4,7 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './config/swagger';
 import dotenv from 'dotenv';
 import { initializeApplication } from './startup';
+import path from 'path';
 
 // Import routes
 import accountRoutes from './routes/accountRoutes';
@@ -39,12 +40,21 @@ app.get('/', (req, res) => {
     name: '0G Compute Network API',
     version: '1.0.0',
     documentation: '/docs',
+    chat: '/chat',
     endpoints: {
       account: `${apiPrefix}/account`,
       services: `${apiPrefix}/services`,
     }
   });
 });
+
+// Chat interface route
+app.get('/chat', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
+// Serve static files from public directory (after specific routes)
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Simple error handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -67,6 +77,7 @@ const startServer = async () => {
       console.log(`
   🚀 0G Compute Network API Server running on http://localhost:${PORT}
   📚 API Documentation: http://localhost:${PORT}/docs
+  🤖 Web Chat Interface: http://localhost:${PORT}/chat
       `);
     });
   } catch (error) {
