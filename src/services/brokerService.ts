@@ -174,16 +174,46 @@ class BrokerService {
 
   /**
    * Request refund for unused funds
-   * @param amount Amount to refund in ETH
+   * @param amount Amount to refund in OG
    */
   async requestRefund(amount: number): Promise<string> {
     await this.ensureInitialized();
-    
+
     try {
-      await this.broker!.ledger.retrieveFund("inference", Number(ethers.parseEther(amount.toString())));
-      return `Refund of ${amount} ETH requested successfully`;
+      // In 0.6.x, use refund() method which takes amount in OG
+      await this.broker!.ledger.refund(amount);
+      return `Refund of ${amount} OG requested successfully`;
     } catch (error: any) {
       throw new Error(`Failed to request refund: ${error.message}`);
+    }
+  }
+
+  /**
+   * Retrieve funds from sub-accounts (inference or fine-tuning)
+   * @param serviceType Service type: "inference" or "fine-tuning"
+   */
+  async retrieveFunds(serviceType: "inference" | "fine-tuning"): Promise<string> {
+    await this.ensureInitialized();
+
+    try {
+      await this.broker!.ledger.retrieveFund(serviceType);
+      return `Funds retrieved from ${serviceType} sub-accounts successfully`;
+    } catch (error: any) {
+      throw new Error(`Failed to retrieve funds: ${error.message}`);
+    }
+  }
+
+  /**
+   * Delete ledger account
+   */
+  async deleteLedger(): Promise<string> {
+    await this.ensureInitialized();
+
+    try {
+      await this.broker!.ledger.deleteLedger();
+      return `Ledger deleted successfully`;
+    } catch (error: any) {
+      throw new Error(`Failed to delete ledger: ${error.message}`);
     }
   }
 
@@ -233,11 +263,12 @@ class BrokerService {
       const chatId = completion.id;
       
       // Process payment - chatId is optional for verifiable services
+      // Note: In 0.6.x, argument order is (providerAddress, chatId, content)
       try {
         const isValid = await this.broker!.inference.processResponse(
           providerAddress,
-          content || "",
-          chatId
+          chatId,
+          content || ""
         );
         
         return {

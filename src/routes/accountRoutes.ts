@@ -7,5 +7,8 @@ const router = express.Router();
 router.get('/info', accountController.getAccountInfo);
 router.post('/deposit', accountController.deposit);
 router.post('/refund', accountController.requestRefund);
+router.post('/add-ledger', accountController.addLedger);
+router.post('/retrieve-funds', accountController.retrieveFunds);
+router.delete('/delete-ledger', accountController.deleteLedger);
 
 export default router; 

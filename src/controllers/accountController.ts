@@ -174,16 +174,178 @@ export const getAccountInfo = async (req: Request, res: Response) => {
 export const requestRefund = async (req: Request, res: Response) => {
   try {
     const { amount } = req.body;
-    
+
     if (!amount || isNaN(amount) || amount <= 0) {
       return res.status(400).json({
         success: false,
         error: 'Valid amount required'
       });
     }
-    
+
     const result = await brokerService.requestRefund(Number(amount));
-    
+
+    return res.status(200).json({
+      success: true,
+      message: result
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /account/add-ledger:
+ *   post:
+ *     summary: Create a new ledger account with initial balance
+ *     tags: [Account]
+ *     description: Creates a new ledger account. Minimum 3 OG required (contract requirement in v0.6.x)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - amount
+ *             properties:
+ *               amount:
+ *                 type: number
+ *                 minimum: 3
+ *                 description: Initial balance in OG tokens (minimum 3 OG required)
+ *     responses:
+ *       200:
+ *         description: Ledger created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Invalid request (amount less than 3 OG)
+ *       500:
+ *         description: Server error
+ */
+export const addLedger = async (req: Request, res: Response) => {
+  try {
+    const { amount } = req.body;
+
+    if (!amount || isNaN(amount) || amount < 3) {
+      return res.status(400).json({
+        success: false,
+        error: 'Minimum 3 OG required to create ledger (contract requirement)'
+      });
+    }
+
+    const result = await brokerService.addFundsToLedger(Number(amount));
+
+    return res.status(200).json({
+      success: true,
+      message: result
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /account/retrieve-funds:
+ *   post:
+ *     summary: Retrieve funds from sub-accounts
+ *     tags: [Account]
+ *     description: Retrieves funds from all sub-accounts (inference or fine-tuning) back to main ledger
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - serviceType
+ *             properties:
+ *               serviceType:
+ *                 type: string
+ *                 enum: [inference, fine-tuning]
+ *                 description: Service type to retrieve funds from
+ *     responses:
+ *       200:
+ *         description: Funds retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Invalid request
+ *       500:
+ *         description: Server error
+ */
+export const retrieveFunds = async (req: Request, res: Response) => {
+  try {
+    const { serviceType } = req.body;
+
+    if (!serviceType || !['inference', 'fine-tuning'].includes(serviceType)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Valid serviceType required (inference or fine-tuning)'
+      });
+    }
+
+    const result = await brokerService.retrieveFunds(serviceType);
+
+    return res.status(200).json({
+      success: true,
+      message: result
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+/**
+ * @swagger
+ * /account/delete-ledger:
+ *   delete:
+ *     summary: Delete ledger account
+ *     tags: [Account]
+ *     description: Deletes the ledger account. Make sure to retrieve all funds first.
+ *     responses:
+ *       200:
+ *         description: Ledger deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Server error
+ */
+export const deleteLedger = async (req: Request, res: Response) => {
+  try {
+    const result = await brokerService.deleteLedger();
+
     return res.status(200).json({
       success: true,
       message: result

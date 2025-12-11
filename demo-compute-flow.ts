@@ -18,7 +18,7 @@ const OFFICIAL_PROVIDERS = {
 // Test configuration
 const TEST_QUERY = "What is the capital of France? Please answer in one sentence.";
 const FALLBACK_FEE = 0.01;
-const INITIAL_FUND_AMOUNT = 1.5; // 1.5 OG tokens (needs at least 1 OG per provider)
+const INITIAL_FUND_AMOUNT = 3; // 3 OG tokens (minimum required by contract)
 
 async function testComputeFlow() {
   console.log("🚀 Starting 0G Compute Network Flow Demo");
@@ -115,9 +115,10 @@ async function testComputeFlow() {
     console.log("\n📋 Step 5: Select Provider and Acknowledge");
     console.log("-".repeat(30));
 
-    // Use the first available service from the list instead of hardcoded addresses
-    const selectedProvider = services[0].provider;
-    const selectedService = services[0];
+    // Use service index 2 (third provider) - adjust as needed based on availability
+    const serviceIndex = 2; // Change this to try different providers (0, 1, 2)
+    const selectedProvider = services[serviceIndex].provider;
+    const selectedService = services[serviceIndex];
     console.log(`🎯 Selected Provider: ${selectedProvider}`);
     console.log(`🎯 Service URL: ${selectedService.url}`);
 
@@ -217,8 +218,8 @@ async function testComputeFlow() {
     try {
       const isValid = await broker.inference.processResponse(
         selectedProvider,
-        aiResponse || "",
-        chatId
+        chatId,
+        aiResponse || ""
       );
       
       console.log("✅ Response processed successfully");
