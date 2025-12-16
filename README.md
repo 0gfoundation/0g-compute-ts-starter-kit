@@ -14,15 +14,51 @@ A comprehensive REST API implementation for interacting with the 0G Compute Netw
 - **BigInt Serialization** for blockchain data compatibility
 - **Enhanced Error Handling** with troubleshooting guidance
 
-## 🤖 Official 0G AI Services
+## 🤖 Available AI Services
 
-The starter kit includes pre-configured access to official 0G AI services:
+### Testnet Services (evmrpc-testnet.0g.ai)
 
-| Model | Provider Address | Description | Verification |
-|-------|-----------------|-------------|-------------|
-| **llama-3.3-70b-instruct** | `0xf07240Efa67755B5311bc75784a061eDB47165Dd` | State-of-the-art 70B parameter model for general AI tasks | TEE (TeeML) |
-| **deepseek-r1-70b** | `0x3feE5a4dd5FDb8a32dDA97Bed899830605dBD9D3` | Advanced reasoning model optimized for complex problem solving | TEE (TeeML) |
-| **qwen2.5-vl-72b-instruct** | `0x6D233D2610c32f630ED53E8a7Cbf759568041f8f` | Vision-language model supporting both text and image inputs (72B parameters) | TEE (TeeML) |
+| # | Model | Type | Provider | Input Price | Output Price |
+|---|-------|------|----------|-------------|--------------|
+| 1 | `qwen/qwen-2.5-7b-instruct` | Chatbot | `0xa48f01287233509FD694a22Bf840225062E67836` | 0.00000005 OG | 0.0000001 OG |
+| 2 | `openai/gpt-oss-20b` | Chatbot | `0x8e60d466FD16798Bec4868aa4CE38586D5590049` | 0.00000005 OG | 0.0000001 OG |
+| 3 | `google/gemma-3-27b-it` | Chatbot | `0x69Eb5a0BD7d0f4bF39eD5CE9Bd3376c61863aE08` | 0.00000015 OG | 0.0000004 OG |
+
+**Available Models:**
+- **Qwen 2.5 7B Instruct**: Fast and efficient conversational model
+- **GPT-OSS-20B**: Mid-size open-source GPT alternative
+- **Gemma 3 27B IT**: Google's instruction-tuned model
+
+All testnet services feature TeeML verifiability and are ideal for development and testing.
+
+### Mainnet Services (evmrpc.0g.ai)
+
+| # | Model | Type | Provider | Input Price | Output Price |
+|---|-------|------|----------|-------------|--------------|
+| 1 | `deepseek-ai/DeepSeek-V3.1` | Chatbot | `0xd9966e13a6026Fcca4b13E7ff95c94DE268C471C` | 0.00000049 OG | 0.00000015 OG |
+| 2 | `openai/whisper-large-v3` | Speech-to-Text | `0x36aCffCEa3CCe07cAdd1740Ad992dB16Ab324517` | 0.000000049 OG | 0.000000114 OG |
+| 3 | `openai/gpt-oss-120b` | Chatbot | `0xBB3f5b0b5062CB5B3245222C5917afD1f6e13aF6` | 0.0000001 OG | 0.00000049 OG |
+| 4 | `qwen/qwen2.5-vl-72b-instruct` | Chatbot | `0x4415ef5CBb415347bb18493af7cE01f225Fc0868` | 0.00000049 OG | 0.00000049 OG |
+| 5 | `deepseek/deepseek-chat-v3-0324` | Chatbot | `0x1B3AAef3ae5050EEE04ea38cD4B087472BD85EB0` | 0.0000003 OG | 0.000001 OG |
+| 6 | `flux-turbo` | Text-to-Image | `0xE29a72c7629815Eb480aE5b1F2dfA06f06cdF974` | 0.0 OG | 0.003 OG |
+| 7 | `openai/gpt-oss-20b` | Chatbot | `0x44ba5021daDa2eDc84b4f5FC170b85F7bC51ef64` | 0.00000005 OG | 0.00000011 OG |
+
+**Available Models by Type:**
+
+**Chatbots (5 models):**
+- **DeepSeek V3.1**: Latest high-performance reasoning model
+- **GPT-OSS-120B**: Large-scale open-source GPT model
+- **Qwen 2.5 VL 72B**: Vision-language multimodal model
+- **DeepSeek Chat V3**: Optimized conversational model
+- **GPT-OSS-20B**: Efficient mid-size model
+
+**Speech-to-Text (1 model):**
+- **Whisper Large V3**: OpenAI's state-of-the-art transcription model
+
+**Text-to-Image (1 model):**
+- **Flux Turbo**: Fast high-quality image generation
+
+All services feature **TeeML** verifiability (TEE-based verification).
 
 ## 📁 Repository Structure
 
@@ -106,13 +142,15 @@ npm run demo
 
 This script demonstrates:
 - Wallet and broker initialization
-- Ledger account setup with funding (1.5 OG minimum)
+- Ledger account setup with funding (**3 OG minimum** - contract requirement in v0.6.x)
 - Service discovery and provider acknowledgment
 - **Fund transfer to specific provider** (required 1 OG minimum per provider)
 - AI query submission with payment processing
 - TEE verification and cost tracking
 
-**Note**: When using a new wallet, you must transfer at least 1 OG to each provider before making queries.
+**Note**: When using a new wallet, you must:
+1. Create a ledger with minimum **3 OG** (contract requirement)
+2. Transfer at least **1 OG** to each provider before making queries
 
 See [DEMO_SCRIPT.md](./DEMO_SCRIPT.md) for detailed documentation.
 
@@ -160,6 +198,53 @@ Request refund for unused funds.
 ```json
 {
   "amount": 0.05
+}
+```
+
+#### `POST /api/account/add-ledger`
+Create a new ledger account with initial balance. **Minimum 3 OG required** (contract requirement in v0.6.x).
+
+**Request:**
+```json
+{
+  "amount": 3.0
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Funds added to ledger successfully"
+}
+```
+
+#### `POST /api/account/retrieve-funds`
+Retrieve funds from sub-accounts (inference or fine-tuning) back to main ledger.
+
+**Request:**
+```json
+{
+  "serviceType": "inference"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Funds retrieved from inference sub-accounts successfully"
+}
+```
+
+#### `DELETE /api/account/delete-ledger`
+Delete the ledger account. Make sure to retrieve all funds first.
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Ledger deleted successfully"
 }
 ```
 
@@ -291,14 +376,17 @@ On startup, the application automatically:
 4. Starts the Express server
 
 ### Authentication Flow
-1. **Ledger Setup**: Create ledger account with initial balance (minimum 1.5 OG recommended)
+1. **Ledger Setup**: Create ledger account with initial balance (**minimum 3 OG required** in v0.6.x)
 2. **Provider Acknowledgment**: Required once per provider (on-chain transaction)
 3. **Fund Transfer**: Transfer funds to specific provider (minimum 1 OG per provider required)
 4. **Header Generation**: Single-use authentication headers per request
 5. **Query Submission**: OpenAI-compatible API calls
 6. **Response Processing**: TEE verification and payment settlement
 
-**Important**: Each provider requires a minimum of 1 OG transferred to their account before you can use their services. The `transferFund` operation allocates funds from your ledger balance to a specific provider's account.
+**Important**:
+- Ledger creation requires **minimum 3 OG** (contract requirement in SDK v0.6.x)
+- Each provider requires **minimum 1 OG** transferred to their account before you can use their services
+- The `transferFund` operation allocates funds from your ledger balance to a specific provider's account
 
 ## 🔒 Security Best Practices
 
@@ -400,16 +488,18 @@ import { ethers } from 'ethers';
 import { createZGComputeNetworkBroker } from '@0glabs/0g-serving-broker';
 import OpenAI from 'openai';
 
-// Initialize broker
+// Initialize broker (testnet)
 const provider = new ethers.JsonRpcProvider('https://evmrpc-testnet.0g.ai');
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
 const broker = await createZGComputeNetworkBroker(wallet);
 
 // Fund account (create ledger with initial balance)
-await broker.ledger.addLedger(1.5); // Minimum 1.5 OG recommended
+await broker.ledger.addLedger(3); // Minimum 3 OG required (v0.6.x contract requirement)
+
+// Select a provider from testnet
+const providerAddress = '0x69Eb5a0BD7d0f4bF39eD5CE9Bd3376c61863aE08'; // Gemma 3 27B
 
 // Acknowledge provider (required once per provider)
-const providerAddress = '0xf07240Efa67755B5311bc75784a061eDB47165Dd';
 await broker.inference.acknowledgeProviderSigner(providerAddress);
 
 // Transfer funds to provider (REQUIRED: minimum 1 OG per provider)
@@ -417,34 +507,41 @@ const transferAmount = ethers.parseEther("1.0");
 await broker.ledger.transferFund(providerAddress, "inference", transferAmount);
 
 // Get service info
+const query = 'Hello, AI!';
 const { endpoint, model } = await broker.inference.getServiceMetadata(providerAddress);
 const headers = await broker.inference.getRequestHeaders(providerAddress, query);
 
 // Send query
-const openai = new OpenAI({ baseURL: endpoint, apiKey: '', defaultHeaders: headers });
-const completion = await openai.chat.completions.create({
-  messages: [{ role: 'user', content: 'Hello, AI!' }],
-  model: model,
-});
+const openai = new OpenAI({ baseURL: endpoint, apiKey: '' });
+const completion = await openai.chat.completions.create(
+  {
+    messages: [{ role: 'user', content: query }],
+    model: model,
+  },
+  { headers }
+);
 
-// Process response
+// Process response (v0.6.x: argument order is providerAddress, chatId, content)
 const isValid = await broker.inference.processResponse(
   providerAddress,
-  completion.choices[0].message.content,
-  completion.id
+  completion.id,                              // chatId
+  completion.choices[0].message.content || "" // content
 );
 ```
 
 ## 🌐 Network Configuration
 
-- **Testnet RPC**: `https://evmrpc-testnet.0g.ai`
-- **Faucet**: https://faucet.0g.ai
-- **Chain ID**: 16600 (0G Testnet)
+| Network | RPC URL | Chain ID |
+|---------|---------|----------|
+| **Testnet** | `https://evmrpc-testnet.0g.ai` | 16602 |
+| **Mainnet** | `https://evmrpc.0g.ai` | 16661 |
+
+- **Testnet Faucet**: https://faucet.0g.ai
 
 ## 📦 Dependencies
 
 ### Core Dependencies
-- `@0glabs/0g-serving-broker@0.5.4` - 0G Compute Network SDK (latest stable version)
+- `@0glabs/0g-serving-broker@0.6.2` - 0G Compute Network SDK (latest stable version)
 - `ethers@^6.11.1` - Ethereum wallet and provider functionality
 - `openai@^4.28.0` - OpenAI-compatible API client
 - `express@^4.18.2` - Web framework for REST API
@@ -496,8 +593,8 @@ git checkout cli-version
 
 ## 🔗 Additional Resources
 
-- **0G Compute Documentation**: https://docs.0g.ai/build-with-0g/compute-network
-- **SDK Examples**: https://github.com/0glabs/compute-examples
+- **0G Compute Documentation**: https://docs.0g.ai/developer-hub/building-on-0g/compute-network/inference
+- **0G Main Website**: https://0g.ai
 - **Discord Support**: https://discord.gg/0glabs
 - **Demo Script Guide**: [DEMO_SCRIPT.md](./DEMO_SCRIPT.md)
 
