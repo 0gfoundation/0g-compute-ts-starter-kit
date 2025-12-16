@@ -96,8 +96,8 @@ All services feature **TeeML** verifiability (TEE-based verification).
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/0gfoundation/0g-compute-starter-kit.git
-cd 0g-compute-starter-kit
+git clone https://github.com/0gfoundation/0g-compute-ts-starter-kit.git
+cd 0g-compute-ts-starter-kit
 ```
 
 2. **Install dependencies:**
