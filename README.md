@@ -6,7 +6,7 @@ A comprehensive REST API implementation for interacting with the 0G Compute Netw
 
 - **REST API Server** with Express.js and TypeScript
 - **Swagger Documentation** at `/docs` for interactive API testing
-- **Official 0G AI Services** with verified provider addresses
+- **Live Service Discovery** for the configured 0G network
 - **Automatic Ledger Management** with startup initialization
 - **TEE Verification** for enhanced trust and security
 - **Single-use Authentication** headers for secure requests
@@ -16,49 +16,31 @@ A comprehensive REST API implementation for interacting with the 0G Compute Netw
 
 ## 🤖 Available AI Services
 
-### Testnet Services (evmrpc-testnet.0g.ai)
+Provider addresses, models, and prices can change. Choose the discovery path that matches your integration.
 
-| # | Model | Type | Provider | Input Price | Output Price |
-|---|-------|------|----------|-------------|--------------|
-| 1 | `qwen/qwen-2.5-7b-instruct` | Chatbot | `0xa48f01287233509FD694a22Bf840225062E67836` | 0.00000005 OG | 0.0000001 OG |
-| 2 | `openai/gpt-oss-20b` | Chatbot | `0x8e60d466FD16798Bec4868aa4CE38586D5590049` | 0.00000005 OG | 0.0000001 OG |
-| 3 | `google/gemma-3-27b-it` | Chatbot | `0x69Eb5a0BD7d0f4bF39eD5CE9Bd3376c61863aE08` | 0.00000015 OG | 0.0000004 OG |
+### Direct SDK (this starter kit)
 
-**Available Models:**
-- **Qwen 2.5 7B Instruct**: Fast and efficient conversational model
-- **GPT-OSS-20B**: Mid-size open-source GPT alternative
-- **Gemma 3 27B IT**: Google's instruction-tuned model
+With the starter server running, list services from its configured chain. This starter defaults to 0G testnet.
 
-All testnet services feature TeeML verifiability and are ideal for development and testing.
+```bash
+curl --fail --silent --show-error http://localhost:4000/api/services/list
+```
 
-### Mainnet Services (evmrpc.0g.ai)
+Use a `provider` address from the returned `services` array as `providerAddress` in the direct API examples below. The SDK equivalent is `broker.inference.listService()`.
 
-| # | Model | Type | Provider | Input Price | Output Price |
-|---|-------|------|----------|-------------|--------------|
-| 1 | `deepseek-ai/DeepSeek-V3.1` | Chatbot | `0xd9966e13a6026Fcca4b13E7ff95c94DE268C471C` | 0.00000049 OG | 0.00000015 OG |
-| 2 | `openai/whisper-large-v3` | Speech-to-Text | `0x36aCffCEa3CCe07cAdd1740Ad992dB16Ab324517` | 0.000000049 OG | 0.000000114 OG |
-| 3 | `openai/gpt-oss-120b` | Chatbot | `0xBB3f5b0b5062CB5B3245222C5917afD1f6e13aF6` | 0.0000001 OG | 0.00000049 OG |
-| 4 | `qwen/qwen2.5-vl-72b-instruct` | Chatbot | `0x4415ef5CBb415347bb18493af7cE01f225Fc0868` | 0.00000049 OG | 0.00000049 OG |
-| 5 | `deepseek/deepseek-chat-v3-0324` | Chatbot | `0x1B3AAef3ae5050EEE04ea38cD4B087472BD85EB0` | 0.0000003 OG | 0.000001 OG |
-| 6 | `flux-turbo` | Text-to-Image | `0xE29a72c7629815Eb480aE5b1F2dfA06f06cdF974` | 0.0 OG | 0.003 OG |
-| 7 | `openai/gpt-oss-20b` | Chatbot | `0x44ba5021daDa2eDc84b4f5FC170b85F7bC51ef64` | 0.00000005 OG | 0.00000011 OG |
+Check the service type, prices, and verifiability before acknowledging or funding a provider. The `isOfficial` field reflects the starter kit's bundled allowlist and can be false for services returned by the live list.
 
-**Available Models by Type:**
+### Compute Router
 
-**Chatbots (5 models):**
-- **DeepSeek V3.1**: Latest high-performance reasoning model
-- **GPT-OSS-120B**: Large-scale open-source GPT model
-- **Qwen 2.5 VL 72B**: Vision-language multimodal model
-- **DeepSeek Chat V3**: Optimized conversational model
-- **GPT-OSS-20B**: Efficient mid-size model
+Browse the [live model catalog](https://pc.0g.ai/models), then look up providers for a model ID:
 
-**Speech-to-Text (1 model):**
-- **Whisper Large V3**: OpenAI's state-of-the-art transcription model
+```bash
+MODEL_ID='z-image-turbo' # Example ID. Pick a current model from the catalog.
+curl --fail --silent --show-error --get 'https://router-api.0g.ai/v1/providers' \
+  --data-urlencode "model=${MODEL_ID}"
+```
 
-**Text-to-Image (1 model):**
-- **Flux Turbo**: Fast high-quality image generation
-
-All services feature **TeeML** verifiability (TEE-based verification).
+This public lookup requires no API key, wallet, or funds. It lists providers for the Router. For direct requests, select a provider from the SDK's service list on the chain you are using. See [Router vs Direct](https://docs.0g.ai/developer-hub/building-on-0g/compute-network/router/comparison) for the differences between the two paths.
 
 ## 📁 Repository Structure
 
@@ -253,14 +235,14 @@ Delete the ledger account. Make sure to retrieve all funds first.
 #### `GET /api/services/list`
 List all available AI services with pricing and verification status.
 
-**Response:**
+**Example response:** Replace `YOUR_PROVIDER_ADDRESS` in subsequent examples with the actual `provider` value from the service you choose.
 ```json
 {
   "success": true,
   "services": [
     {
-      "provider": "0xf07240Efa67755B5311bc75784a061eDB47165Dd",
-      "model": "llama-3.3-70b-instruct",
+      "provider": "YOUR_PROVIDER_ADDRESS",
+      "model": "example-model",
       "serviceType": "inference",
       "url": "https://...",
       "inputPrice": "1000000000000000",
@@ -279,7 +261,7 @@ Acknowledge a provider before using their services (Step 1 - required once per p
 **Request:**
 ```json
 {
-  "providerAddress": "0xf07240Efa67755B5311bc75784a061eDB47165Dd"
+  "providerAddress": "YOUR_PROVIDER_ADDRESS"
 }
 ```
 
@@ -289,7 +271,7 @@ Transfer funds to a specific provider (Step 2 - REQUIRED before making queries, 
 **Request:**
 ```json
 {
-  "providerAddress": "0xf07240Efa67755B5311bc75784a061eDB47165Dd",
+  "providerAddress": "YOUR_PROVIDER_ADDRESS",
   "amount": 1.0
 }
 ```
@@ -298,7 +280,7 @@ Transfer funds to a specific provider (Step 2 - REQUIRED before making queries, 
 ```json
 {
   "success": true,
-  "message": "Successfully transferred 1.0 OG to provider 0xf07240Efa67755B5311bc75784a061eDB47165Dd"
+  "message": "Successfully transferred 1.0 OG to provider YOUR_PROVIDER_ADDRESS"
 }
 ```
 
@@ -308,7 +290,7 @@ Send a query to an AI service.
 **Request:**
 ```json
 {
-  "providerAddress": "0xf07240Efa67755B5311bc75784a061eDB47165Dd",
+  "providerAddress": "YOUR_PROVIDER_ADDRESS",
   "query": "What is the capital of France?",
   "fallbackFee": 0.01
 }
@@ -321,9 +303,9 @@ Send a query to an AI service.
   "response": {
     "content": "The capital of France is Paris.",
     "metadata": {
-      "model": "llama-3.3-70b-instruct",
+      "model": "example-model",
       "isValid": true,
-      "provider": "0xf07240Efa67755B5311bc75784a061eDB47165Dd",
+      "provider": "YOUR_PROVIDER_ADDRESS",
       "chatId": "chatcmpl-..."
     }
   }
@@ -336,7 +318,7 @@ Manually settle fees (legacy support for specific error cases).
 **Request:**
 ```json
 {
-  "providerAddress": "0xf07240Efa67755B5311bc75784a061eDB47165Dd",
+  "providerAddress": "YOUR_PROVIDER_ADDRESS",
   "fee": 0.000001
 }
 ```
@@ -404,7 +386,7 @@ On startup, the application automatically:
 ```bash
 curl -X POST http://localhost:4000/api/services/acknowledge-provider \
   -H "Content-Type: application/json" \
-  -d '{"providerAddress": "0xf07240Efa67755B5311bc75784a061eDB47165Dd"}'
+  -d '{"providerAddress": "YOUR_PROVIDER_ADDRESS"}'
 ```
 
 #### Insufficient Balance
@@ -437,7 +419,7 @@ Error: invalid previousOutputFee: expected 0.00000000000000015900000000000001138
 Use the settle-fee endpoint with the exact amount:
 ```json
 {
-  "providerAddress": "0x3feE5a4dd5FDb8a32dDA97Bed899830605dBD9D3",
+  "providerAddress": "YOUR_PROVIDER_ADDRESS",
   "fee": 0.00000000000000015900000000000001138
 }
 ```
@@ -460,14 +442,14 @@ curl http://localhost:4000/api/account/info
 ```bash
 curl -X POST http://localhost:4000/api/services/acknowledge-provider \
   -H "Content-Type: application/json" \
-  -d '{"providerAddress": "0xf07240Efa67755B5311bc75784a061eDB47165Dd"}'
+  -d '{"providerAddress": "YOUR_PROVIDER_ADDRESS"}'
 ```
 
 4. **Transfer funds to provider (REQUIRED):**
 ```bash
 curl -X POST http://localhost:4000/api/services/transfer-to-provider \
   -H "Content-Type: application/json" \
-  -d '{"providerAddress": "0xf07240Efa67755B5311bc75784a061eDB47165Dd", "amount": 1.0}'
+  -d '{"providerAddress": "YOUR_PROVIDER_ADDRESS", "amount": 1.0}'
 ```
 
 5. **Send a query:**
@@ -475,7 +457,7 @@ curl -X POST http://localhost:4000/api/services/transfer-to-provider \
 curl -X POST http://localhost:4000/api/services/query \
   -H "Content-Type: application/json" \
   -d '{
-    "providerAddress": "0xf07240Efa67755B5311bc75784a061eDB47165Dd",
+    "providerAddress": "YOUR_PROVIDER_ADDRESS",
     "query": "Explain quantum computing in simple terms",
     "fallbackFee": 0.01
   }'
@@ -493,11 +475,14 @@ const provider = new ethers.JsonRpcProvider('https://evmrpc-testnet.0g.ai');
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
 const broker = await createZGComputeNetworkBroker(wallet);
 
+// Set PROVIDER_ADDRESS to a chat provider from await broker.inference.listService().
+const providerAddress = process.env.PROVIDER_ADDRESS;
+if (!providerAddress) {
+  throw new Error('Set PROVIDER_ADDRESS to a provider from the testnet service list.');
+}
+
 // Fund account (create ledger with initial balance)
 await broker.ledger.addLedger(3); // Minimum 3 OG required (v0.6.x contract requirement)
-
-// Select a provider from testnet
-const providerAddress = '0x69Eb5a0BD7d0f4bF39eD5CE9Bd3376c61863aE08'; // Gemma 3 27B
 
 // Acknowledge provider (required once per provider)
 await broker.inference.acknowledgeProviderSigner(providerAddress);
@@ -586,7 +571,7 @@ git checkout cli-version
 
 ### Performance Tips
 
-1. **Provider Selection**: Use official providers for best reliability
+1. **Provider Selection**: Choose an available service on your configured network that supports your request type
 2. **Balance Management**: Maintain sufficient OG tokens for queries
 3. **Error Handling**: Implement proper retry logic in production
 4. **Rate Limiting**: Consider implementing rate limits for public APIs
